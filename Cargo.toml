@@ -1,0 +1,15 @@
+[workspace]
+members = [
+    "azimuth-core",
+    "azimuth-firmware-pico",
+    "azimuth-firmware-sim",
+    "azimuth-gui",
+]
+
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Maximilian Dietrich <m.dietrich16@web.de>"]
+license = "MIT OR Apache-2.0"
