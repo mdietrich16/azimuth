@@ -33,10 +33,7 @@
         overlays = [(import rust-overlay)];
       };
 
-      rustToolchain = pkgs.rust-bin.stable.latest.default.override {
-        targets = ["thumbv6m-none-eabi"]; # For RP2040
-        extensions = ["llvm-tools-preview" "rust-src"];
-      };
+      rustToolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
 
       craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
       src = craneLib.cleanCargoSource ./.;
