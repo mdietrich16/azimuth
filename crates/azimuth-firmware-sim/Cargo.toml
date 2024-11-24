@@ -1,6 +1,8 @@
 [package]
 name = "azimuth-firmware-sim"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
 
 [dependencies]
+azimuth-core = { path = "../azimuth-core" }

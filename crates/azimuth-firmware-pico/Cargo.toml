@@ -1,6 +1,12 @@
 [package]
 name = "azimuth-firmware-pico"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
 
 [dependencies]
+azimuth-core = { path = "../azimuth-core", default-features = false }
+rp-pico = "0.9"
+cortex-m = "0.7"
+cortex-m-rt = "0.7"
+panic-halt = "1.0.0"

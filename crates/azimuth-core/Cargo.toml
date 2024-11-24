@@ -1,6 +1,11 @@
 [package]
 name = "azimuth-core"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+
+[features]
+default = ["std"]
+std = []
 
 [dependencies]

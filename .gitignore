@@ -1,5 +1,15 @@
-# .gitignore
-.env
-.direnv/
+# Rust
+/target
+**/target
+
+# Nix
 result
-target/
+.direnv
+
+# Editor/IDE
+*.swp
+*~
+
+# Environment
+.env
+.aider*
