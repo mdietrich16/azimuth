@@ -43,7 +43,6 @@
       commonArgs = {
         inherit src;
         strictDeps = true;
-        buildInputs = [];
         cargoExtraArgs = "--workspace --exclude azimuth-firmware-pico";
       };
 
@@ -51,8 +50,11 @@
       embeddedArgs =
         commonArgs
         // {
-          cargoExtraArgs = "-p azimuth-firmware-pico";
-          # Need --target thumbv6m-none-eabi ?
+          cargoExtraArgs = "-p azimuth-firmware-pico --target thumbv6m-none-eabi";
+          doCheck = false;
+          nativeBuildInputs = with pkgs; [
+            flip-link
+          ];
         };
 
       # Build artifacts for both targets
