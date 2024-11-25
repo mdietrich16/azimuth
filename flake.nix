@@ -90,7 +90,7 @@
             ./Cargo.lock
             ./memory.x
             (craneLib.fileset.commonCargoSources ./crates/azimuth-core)
-            # (craneLib.fileset.commonCargoSources ./crates/workspace-hack)
+            (craneLib.fileset.commonCargoSources ./crates/workspace-hack)
             (craneLib.fileset.commonCargoSources crate)
           ];
         };
@@ -161,7 +161,7 @@
         clippy-std = craneLib.cargoClippy (commonArgs
           // {
             cargoArtifacts = cargoArtifacts.std;
-            cargoClippyExtraArgs = "--package azimuth-gui --package azimuth-firmware-sim -- --deny warnings";
+            cargoClippyExtraArgs = "-p azimuth-gui -p azimuth-firmware-sim -- --deny warnings";
           });
 
         doc-embedded = craneLib.cargoDoc (embeddedArgs
