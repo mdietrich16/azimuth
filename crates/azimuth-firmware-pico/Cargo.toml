@@ -1,10 +1,17 @@
 cargo-features = ["per-package-target"]
+
 [package]
 name = "azimuth-firmware-pico"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 default-target = "thumbv6m-none-eabi"
+
+[[bin]]
+name = "azimuth-firmware-pico"
+test = false
+doctest = false
+bench = false
 
 [dependencies]
 azimuth-core = { path = "../azimuth-core", default-features = false }
