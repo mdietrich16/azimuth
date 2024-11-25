@@ -38,7 +38,17 @@
       rustToolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
 
       craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
-      src = craneLib.cleanCargoSource ./.;
+      src = lib.fileset.toSource {
+        root = ./.;
+        fileset = lib.fileset.unions [
+          # Default files from crane (Rust and cargo files)
+          (craneLib.fileset.commonCargoSources ./.)
+          (craneLib.fileset.configToml ./.)
+          # Also keep linker script
+          ./memory.x
+        ];
+      };
+      # src = craneLib.cleanCargoSource ./.;
 
       commonArgs = {
         inherit src;
