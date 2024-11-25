@@ -192,6 +192,7 @@
 
         # Audit licenses
         deny = craneLib.cargoDeny {
+          cargoDenyExtraArgs = "--exclude workspace-hack";
           inherit src;
         };
 
