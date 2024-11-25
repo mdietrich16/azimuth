@@ -188,9 +188,15 @@
         # Run tests with cargo-nextest
         # Consider setting `doCheck = false` on other crate derivations
         # if you do not want the tests to run twice
-        nextest = craneLib.cargoNextest (commonArgs
+        nextest-std = craneLib.cargoNextest (commonArgs
           // {
-            inherit cargoArtifacts;
+            cargoArtifacts = cargoArtifacts.std;
+            partitions = 1;
+            partitionType = "count";
+          });
+        nextest-embedded = craneLib.cargoNextest (embeddedArgs
+          // {
+            cargoArtifacts = cargoArtifacts.std;
             partitions = 1;
             partitionType = "count";
           });
