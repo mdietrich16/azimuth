@@ -5,6 +5,7 @@ name = "azimuth-firmware-pico"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
+publish = false
 default-target = "thumbv6m-none-eabi"
 
 [[bin]]

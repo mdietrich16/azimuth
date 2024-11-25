@@ -5,6 +5,7 @@ name = "azimuth-gui"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
+publish = false
 default-target = "x86_64-unknown-linux-gnu"
 
 [dependencies]
