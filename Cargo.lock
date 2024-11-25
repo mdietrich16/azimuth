@@ -11,6 +11,9 @@ checksum = "7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50"
 [[package]]
 name = "azimuth-core"
 version = "0.1.0"
+dependencies = [
+ "workspace-hack",
+]
 
 [[package]]
 name = "azimuth-firmware-pico"
@@ -24,6 +27,7 @@ dependencies = [
  "embedded-hal 1.0.0",
  "panic-probe",
  "rp-pico",
+ "workspace-hack",
 ]
 
 [[package]]
@@ -31,11 +35,15 @@ name = "azimuth-firmware-sim"
 version = "0.1.0"
 dependencies = [
  "azimuth-core",
+ "workspace-hack",
 ]
 
 [[package]]
 name = "azimuth-gui"
 version = "0.1.0"
+dependencies = [
+ "workspace-hack",
+]
 
 [[package]]
 name = "bare-metal"
@@ -607,4 +615,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de437e2a6208b014ab52972a27e59b33fa2920d3e00fe05026167a1c509d19cc"
 dependencies = [
  "vcell",
+]
+
+[[package]]
+name = "workspace-hack"
+version = "0.1.0"
+dependencies = [
+ "cortex-m-rt",
 ]

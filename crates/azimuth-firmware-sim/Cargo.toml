@@ -9,3 +9,4 @@ default-target = "x86_64-unknown-linux-gnu"
 
 [dependencies]
 azimuth-core = { path = "../azimuth-core" }
+workspace-hack = { version = "0.1", path = "../workspace-hack" }

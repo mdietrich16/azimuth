@@ -80,6 +80,7 @@
             ./Cargo.lock
             ./memory.x
             (craneLib.fileset.commonCargoSources ./crates/azimuth-core)
+            # (craneLib.fileset.commonCargoSources ./crates/workspace-hack)
             (craneLib.fileset.commonCargoSources crate)
           ];
         };
@@ -194,6 +195,23 @@
             partitionType = "count";
           });
 
+        # Ensure that cargo-hakari is up to date
+        hakari = craneLib.mkCargoDerivation {
+          inherit src;
+          pname = "hakari";
+          cargoArtifacts = null;
+          doInstallCargoArtifacts = false;
+
+          buildPhaseCargoCommand = ''
+            cargo hakari generate --diff  # workspace-hack Cargo.toml is up-to-date
+            cargo hakari manage-deps --dry-run  # all workspace crates depend on workspace-hack
+            cargo hakari verify
+          '';
+
+          nativeBuildInputs = [
+            pkgs.cargo-hakari
+          ];
+        };
       };
 
       devShells.default = craneLib.devShell {
@@ -206,6 +224,9 @@
           # Essential
           # rustToolchain # Rust compiler and standard tools
           rust-analyzer # IDE support
+
+          # Cargo tools
+          cargo-hakari
 
           # For RP2040 development
           probe-rs-tools # Flashing and debugging

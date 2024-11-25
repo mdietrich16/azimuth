@@ -10,3 +10,6 @@ default-target = "x86_64-unknown-linux-gnu"
 [features]
 default = ["std"]
 std = []
+
+[dependencies]
+workspace-hack = { version = "0.1", path = "../workspace-hack" }

@@ -8,3 +8,4 @@ authors.workspace = true
 default-target = "x86_64-unknown-linux-gnu"
 
 [dependencies]
+workspace-hack = { version = "0.1", path = "../workspace-hack" }
