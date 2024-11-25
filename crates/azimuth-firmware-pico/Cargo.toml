@@ -17,10 +17,10 @@ bench = false
 [dependencies]
 azimuth-core = { path = "../azimuth-core", default-features = false }
 
-rp-pico = "0.9"
 cortex-m = "0.7"
 cortex-m-rt = "0.7"
 embedded-hal = { version = "1.0.0" }
+rp-pico = "0.9"
 
 defmt = "0.3"
 defmt-rtt = "0.4"
