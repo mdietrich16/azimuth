@@ -1,11 +1,12 @@
+cargo-features = ["per-package-target"]
+
 [package]
 name = "azimuth-core"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
+default-target = "x86_64-unknown-linux-gnu"
 
 [features]
 default = ["std"]
 std = []
-
-[dependencies]
