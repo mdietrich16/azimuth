@@ -1,10 +1,5 @@
 [workspace]
-members = [
-  "crates/azimuth-core",
-  "crates/azimuth-firmware-pico",
-  "crates/azimuth-firmware-sim",
-  "crates/azimuth-gui",
-]
+members = ["crates/*"]
 
 resolver = "2"
 
