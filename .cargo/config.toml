@@ -1,18 +1,22 @@
 [target.'cfg(all(target_arch = "arm", target_os = "none"))']
-# Choose a default "cargo run" tool:
-# - `probe-rs` provides flashing and defmt via hardware debugger
+# `probe-rs` provides flashing and defmt via a hardware debugger, and stack unwind on panic
 runner = "probe-rs run --chip RP2040 --protocol swd"
-
+linker = "flip-link"
 rustflags = [
-  "-C", "linker=flip-link",
-  "-C", "link-arg=--nmagic",
-  "-C", "link-arg=-Tlink.x",
-  "-C", "link-arg=-Tdefmt.x",
-  "-C", "no-vectorize-loops",
+  "-C",
+  "link-arg=--nmagic",
+  "-C",
+  "link-arg=-Tlink.x",
+  "-C",
+  "link-arg=-Tdefmt.x",
+
+  # Code-size optimizations.
+  #   trap unreachable can save a lot of space, but requires nightly compiler.
+  #   uncomment the next line if you wish to enable it
+  # "-Z", "trap-unreachable=no",
+  "-C",
+  "no-vectorize-loops",
 ]
 
 [env]
 DEFMT_LOG = "debug"
-
-[unstable]
-build-std = ["core", "compiler_builtins"]
