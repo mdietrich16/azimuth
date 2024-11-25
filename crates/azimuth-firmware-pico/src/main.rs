@@ -67,7 +67,7 @@ fn main() -> ! {
     loop {
         info!("LED on!");
         led_pin.set_high().unwrap();
-        delay.delay_ms(500);
+        delay.delay_ms(1500);
         info!("LED off!");
         led_pin.set_low().unwrap();
         delay.delay_ms(500);
