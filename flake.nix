@@ -45,7 +45,7 @@
           (craneLib.fileset.commonCargoSources ./.)
           (craneLib.fileset.configToml ./.)
           # Also keep linker script
-          ./memory.x
+          (lib.fileset.maybeMissing ./memory.x)
         ];
       };
       # src = craneLib.cleanCargoSource ./.;
@@ -106,7 +106,7 @@
       firmware-pico = craneLib.buildPackage ((individualCrateArgs cargoArtifacts.embedded)
         // {
           pname = "azimuth-firmware-pico";
-          src = fileSetForCrate ./crates/azimuth-firmware-pico;
+          src = src; # fileSetForCrate ./crates/azimuth-firmware-pico;
         });
       firmware-sim = craneLib.buildPackage ((individualCrateArgs cargoArtifacts.std)
         // {
