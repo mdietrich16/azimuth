@@ -1,0 +1,17 @@
+[package]
+name = "azimuth-drone"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+publish = false
+
+[target.'cfg(target_os = "none")'.dependencies]
+azimuth-hal-pico = { path = "../azimuth-hal-pico/" }
+cortex-m-rt = "0.7"
+
+[target.'cfg(not(target_os = "none"))'.dependencies]
+azimuth-hal-sim = { path = "../azimuth-hal-sim/" }
+
+[dependencies]
+workspace-hack = { version = "0.1", path = "../workspace-hack" }

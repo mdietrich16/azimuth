@@ -9,17 +9,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50"
 
 [[package]]
-name = "azimuth-core"
+name = "azimuth-drone"
+version = "0.1.0"
+dependencies = [
+ "azimuth-hal-pico",
+ "azimuth-hal-sim",
+ "cortex-m-rt",
+ "workspace-hack",
+]
+
+[[package]]
+name = "azimuth-hal"
 version = "0.1.0"
 dependencies = [
  "workspace-hack",
 ]
 
 [[package]]
-name = "azimuth-firmware-pico"
+name = "azimuth-hal-pico"
 version = "0.1.0"
 dependencies = [
- "azimuth-core",
+ "azimuth-hal",
  "cortex-m",
  "cortex-m-rt",
  "defmt",
@@ -31,17 +41,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "azimuth-firmware-sim"
+name = "azimuth-hal-sim"
 version = "0.1.0"
 dependencies = [
- "azimuth-core",
- "workspace-hack",
-]
-
-[[package]]
-name = "azimuth-gui"
-version = "0.1.0"
-dependencies = [
+ "azimuth-hal",
  "workspace-hack",
 ]
 
@@ -174,6 +177,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "delta"
+version = "0.1.0"
+dependencies = [
+ "azimuth-hal",
+ "cortex-m",
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embedded-hal 1.0.0",
+ "panic-probe",
+ "rp-pico",
+ "workspace-hack",
+]
+
+[[package]]
 name = "either"
 version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -275,6 +293,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "17186ad64927d5ac8f02c1e77ccefa08ccd9eaa314d5a4772278aa204a22f7e7"
 dependencies = [
  "gcd",
+]
+
+[[package]]
+name = "gauge"
+version = "0.1.0"
+dependencies = [
+ "workspace-hack",
 ]
 
 [[package]]

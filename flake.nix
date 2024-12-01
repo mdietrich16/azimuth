@@ -35,9 +35,15 @@
         overlays = [(import rust-overlay)];
       };
 
+      crateTargets = {
+        "x86_64-unknown-linux-gnu" = ["azimuth-drone" "gauge"];
+        "thumbv6m-none-eabi" = ["azimuth-drone" "delta"];
+      };
+
       rustToolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
 
       craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
+
       src = lib.fileset.toSource {
         root = ./.;
         fileset = lib.fileset.unions [
@@ -45,107 +51,99 @@
           (craneLib.fileset.commonCargoSources ./.)
           (craneLib.fileset.configToml ./.)
           # Also keep linker script
-          (lib.fileset.maybeMissing ./memory.x)
+          ./memory.x
         ];
       };
-      # src = craneLib.cleanCargoSource ./.;
+
+      otherSrc = lib.cleanSourceWith {
+        src = ./.;
+        filter = path: type: (craneLib.filterCargoSources path type) || (builtins.baseNameOf path == "memory.x");
+      };
 
       commonArgs = {
         inherit src;
-        strictDeps = true;
-        cargoExtraArgs = "--workspace --exclude azimuth-firmware-pico";
+        # cargoExtraArgs = lib.strings.concatMapStrings (x: "-p ${x} ") crateTargets.x86_64-unknown-linux-gnu;
+        nativeBuildInputs = with pkgs; [
+          flip-link
+        ];
+        doCheck = false;
+        extraDummyScript = ''
+          cp -a ${./memory.x} $out/memory.x
+          # (shopt -s globstar; rm -rf $out/**/src/bin/crane-dummy-*)
+        '';
       };
 
       # Common args for embedded builds
       embeddedArgs =
         commonArgs
         // {
-          cargoExtraArgs = "-p azimuth-firmware-pico --target thumbv6m-none-eabi";
-          doCheck = false;
+          cargoExtraArgs = lib.strings.concatStrings ["--target thumbv6m-none-eabi " (lib.strings.concatMapStrings (x: "-p ${x} ") crateTargets.thumbv6m-none-eabi)];
           nativeBuildInputs = with pkgs; [
             flip-link
           ];
         };
 
-      # Build artifacts for both targets
-      cargoArtifacts = {
-        embedded = craneLib.buildDepsOnly embeddedArgs;
-        std = craneLib.buildDepsOnly commonArgs;
-      };
+      cargoArtifacts = craneLib.buildDepsOnly commonArgs;
 
-      individualCrateArgs = cargoArtifacts:
-        commonArgs
+      azimuth-pico = craneLib.buildPackage (embeddedArgs
         // {
           inherit cargoArtifacts;
-          inherit (craneLib.crateNameFromCargoToml {inherit src;}) version;
-          # NB: we disable tests since we'll run them all via cargo-nextest
-          doCheck = false;
-        };
-
-      fileSetForCrate = crate:
-        lib.fileset.toSource {
-          root = ./.;
-          fileset = lib.fileset.unions [
-            ./Cargo.toml
-            ./Cargo.lock
-            ./memory.x
-            (craneLib.fileset.commonCargoSources ./crates/azimuth-core)
-            (craneLib.fileset.commonCargoSources ./crates/workspace-hack)
-            (craneLib.fileset.commonCargoSources crate)
-          ];
-        };
-
-      # Build the top-level crates of the workspace as individual derivations.
-      # This allows consumers to only depend on (and build) only what they need.
-      # Though it is possible to build the entire workspace as a single derivation,
-      # so this is left up to you on how to organize things
-      #
-      # Note that the cargo workspace must define `workspace.members` using wildcards,
-      # otherwise, omitting a crate (like we do below) will result in errors since
-      # cargo won't be able to find the sources for all members.
-      firmware-pico = craneLib.buildPackage ((individualCrateArgs cargoArtifacts.embedded)
-        // {
-          pname = "azimuth-firmware-pico";
-          src = src; # fileSetForCrate ./crates/azimuth-firmware-pico;
+          # cargoArtifacts = cargoArtifacts.embedded;
+          pname = "azimuth-pico";
+          cargoExtraArgs = "-p azimuth-drone";
+          src = src;
         });
-      firmware-sim = craneLib.buildPackage ((individualCrateArgs cargoArtifacts.std)
+      azimuth-sim = craneLib.buildPackage (commonArgs
         // {
-          pname = "azimuth-firmware-sim";
-          cargoExtraArgs = "-p azimuth-firmware-sim";
-          src = fileSetForCrate ./crates/azimuth-firmware-sim;
+          inherit cargoArtifacts;
+          # cargoArtifacts = cargoArtifacts.std;
+          pname = "azimuth-sim";
+          cargoExtraArgs = "-p azimuth-drone";
+          src = src;
         });
-      gui = craneLib.buildPackage ((individualCrateArgs cargoArtifacts.std)
+      gauge = craneLib.buildPackage (commonArgs
         // {
+          inherit cargoArtifacts;
+          # cargoArtifacts = cargoArtifacts.std;
           pname = "azimuth-gui";
-          cargoExtraArgs = "-p azimuth-gui";
-          src = fileSetForCrate ./crates/azimuth-gui;
+          cargoExtraArgs = "-p gauge";
+          src = src;
+        });
+      delta = craneLib.buildPackage (embeddedArgs
+        // {
+          inherit cargoArtifacts;
+          # cargoArtifacts = cargoArtifacts.embedded;
+          pname = "azimuth-gui";
+          cargoExtraArgs = "-p delta";
+          src = src;
         });
     in {
       packages = {
-        inherit firmware-pico firmware-sim gui;
-        default = self.packages.${system}.firmware-sim;
+        inherit azimuth-pico azimuth-sim gauge delta;
+        default = self.packages.${system}.azimuth-pico;
         all = pkgs.symlinkJoin {
           name = "azimuth-all";
           paths = [
-            firmware-pico
-            firmware-sim
-            gui
+            azimuth-pico
+            azimuth-sim
+            gauge
+            delta
           ];
         };
       };
 
       apps = {
-        firmware-pico = flake-utils.lib.mkApp {
-          drv = firmware-pico;
+        azimuth-sim = flake-utils.lib.mkApp {
+          drv = azimuth-sim;
         };
-        firmware-sim = flake-utils.lib.mkApp {
-          drv = firmware-sim;
+        gauge = flake-utils.lib.mkApp {
+          drv = gauge;
         };
       };
 
       checks = {
         # Build the crates as part of `nix flake check` for convenience
-        inherit firmware-pico firmware-sim gui;
+        inherit azimuth-pico azimuth-sim gauge delta;
 
         # Run clippy (and deny all warnings) on the workspace source,
         # again, reusing the dependency artifacts from above.
@@ -153,26 +151,26 @@
         # Note that this is done as a separate derivation so that
         # we can block the CI if there are issues here, but not
         # prevent downstream consumers from building our crate by itself.
-        clippy-embeded = craneLib.cargoClippy (embeddedArgs
-          // {
-            cargoArtifacts = cargoArtifacts.embedded;
-            cargoClippyExtraArgs = "-p azimuth-firmware-pico -- --deny warnings";
-          });
-        clippy-std = craneLib.cargoClippy (commonArgs
-          // {
-            cargoArtifacts = cargoArtifacts.std;
-            cargoClippyExtraArgs = "-p azimuth-gui -p azimuth-firmware-sim -- --deny warnings";
-          });
+        # clippy-embeded = craneLib.cargoClippy (embeddedArgs
+        #   // {
+        #     cargoArtifacts = cargoArtifacts.embedded;
+        #     cargoClippyExtraArgs = "-p azimuth-firmware-pico -- --deny warnings";
+        #   });
+        # clippy-std = craneLib.cargoClippy (commonArgs
+        #   // {
+        #     cargoArtifacts = cargoArtifacts.std;
+        #     cargoClippyExtraArgs = "-p azimuth-gui -p azimuth-firmware-sim -- --deny warnings";
+        #   });
 
-        doc-embedded = craneLib.cargoDoc (embeddedArgs
-          // {
-            cargoArtifacts = cargoArtifacts.embedded;
-          });
+        # doc-embedded = craneLib.cargoDoc (embeddedArgs
+        #   // {
+        #     cargoArtifacts = cargoArtifacts.embedded;
+        #   });
 
-        doc-std = craneLib.cargoDoc (commonArgs
-          // {
-            cargoArtifacts = cargoArtifacts.std;
-          });
+        # doc-std = craneLib.cargoDoc (commonArgs
+        #   // {
+        #     cargoArtifacts = cargoArtifacts.std;
+        #   });
 
         # Check formatting
         format = craneLib.cargoFmt {
@@ -199,18 +197,18 @@
         # Run tests with cargo-nextest
         # Consider setting `doCheck = false` on other crate derivations
         # if you do not want the tests to run twice
-        nextest-std = craneLib.cargoNextest (commonArgs
-          // {
-            cargoArtifacts = cargoArtifacts.std;
-            partitions = 1;
-            partitionType = "count";
-          });
-        nextest-embedded = craneLib.cargoNextest (embeddedArgs
-          // {
-            cargoArtifacts = cargoArtifacts.std;
-            partitions = 1;
-            partitionType = "count";
-          });
+        # nextest-std = craneLib.cargoNextest (commonArgs
+        #   // {
+        #     cargoArtifacts = cargoArtifacts.std;
+        #     partitions = 1;
+        #     partitionType = "count";
+        #   });
+        # nextest-embedded = craneLib.cargoNextest (embeddedArgs
+        #   // {
+        #     cargoArtifacts = cargoArtifacts.std;
+        #     partitions = 1;
+        #     partitionType = "count";
+        #   });
 
         # Ensure that cargo-hakari is up to date
         hakari = craneLib.mkCargoDerivation {
@@ -231,19 +229,23 @@
         };
       };
 
+      inherit src otherSrc;
+
       devShells.default = craneLib.devShell {
         # Inherit inputs from checks.
         checks = self.checks.${system};
 
-        inputsFrom = [self.packages.${system}.firmware-pico self.packages.${system}.firmware-sim];
+        inputsFrom = [self.packages.${system}.azimuth-pico self.packages.${system}.azimuth-sim self.packages.${system}.gauge self.packages.${system}.delta];
 
-        buildInputs = with pkgs; [
+        packages = with pkgs; [
           # Essential
           # rustToolchain # Rust compiler and standard tools
           rust-analyzer # IDE support
 
           # Cargo tools
           cargo-hakari
+          cargo-binutils
+          minicom
 
           # For RP2040 development
           probe-rs-tools # Flashing and debugging

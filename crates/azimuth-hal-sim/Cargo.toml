@@ -1,16 +1,11 @@
-cargo-features = ["per-package-target"]
-
 [package]
-name = "azimuth-core"
+name = "azimuth-hal-sim"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
+license.workspace = true
 publish = false
-default-target = "x86_64-unknown-linux-gnu"
-
-[features]
-default = ["std"]
-std = []
 
 [dependencies]
+azimuth-hal = { path = "../azimuth-hal" }
 workspace-hack = { version = "0.1", path = "../workspace-hack" }

@@ -1,0 +1,20 @@
+[package]
+name = "azimuth-hal-pico"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+azimuth-hal = { path = "../azimuth-hal" }
+
+cortex-m = "0.7"
+cortex-m-rt = "0.7"
+embedded-hal = { version = "1.0.0" }
+rp-pico = "0.9"
+
+defmt = "0.3"
+defmt-rtt = "0.4"
+panic-probe = { version = "0.3", features = ["print-defmt"] }
+workspace-hack = { version = "0.1", path = "../workspace-hack" }

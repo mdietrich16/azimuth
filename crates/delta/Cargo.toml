@@ -1,21 +1,16 @@
 cargo-features = ["per-package-target"]
 
 [package]
-name = "azimuth-firmware-pico"
+name = "delta"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
+license.workspace = true
 publish = false
-default-target = "thumbv6m-none-eabi"
-
-[[bin]]
-name = "azimuth-firmware-pico"
-test = false
-doctest = false
-bench = false
+forced-target = "thumbv6m-none-eabi"
 
 [dependencies]
-azimuth-core = { path = "../azimuth-core", default-features = false }
+azimuth-hal = { path = "../azimuth-hal" }
 
 cortex-m = "0.7"
 cortex-m-rt = "0.7"

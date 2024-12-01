@@ -1,12 +1,10 @@
-cargo-features = ["per-package-target"]
-
 [package]
-name = "azimuth-gui"
+name = "azimuth-hal"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
+license.workspace = true
 publish = false
-default-target = "x86_64-unknown-linux-gnu"
 
 [dependencies]
 workspace-hack = { version = "0.1", path = "../workspace-hack" }
